@@ -19,7 +19,6 @@ public:
 
     explicit MemHandler(int num);
 
-    void init(int num);
 
     void *allocMem(size_t size);
 
@@ -29,7 +28,7 @@ public:
 
 
 private:
-
+    void init(int num);
 
 private:
     std::vector<MemPool *> poolVec;

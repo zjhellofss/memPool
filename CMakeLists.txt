@@ -3,4 +3,4 @@ project(MemPool)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_library(MemPool main.cpp memHandler.cpp memHandler.h memPool.cpp memPool.h memBlock.cpp memBlock.h)
+add_library(MemPool main.cpp memHandler.cpp memHandler.h memPool.cpp memPool.h memBlock.cpp memBlock.h alloc.h alloc.cpp)
