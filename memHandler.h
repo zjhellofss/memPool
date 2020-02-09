@@ -28,11 +28,14 @@ public:
 
 
 private:
-    void init(int num);
+    void init(int num, int minSize, int maxSize);
 
 private:
+    int minSize;
+    int maxSize;
     std::vector<MemPool *> poolVec;
     static MemHandler *memHandler;
+
 
 };
 

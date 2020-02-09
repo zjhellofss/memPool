@@ -4,9 +4,13 @@
 
 #include <cstdlib>
 #include <cassert>
+#include <iostream>
 #include "memPool.h"
 #include "memBlock.h"
 
+#include <mutex>
+
+std::mutex addrLock;
 
 MemPool::MemPool(size_t blockNum, size_t blockSize) : blockNum(blockNum), blockSize(blockSize)
 {
@@ -30,16 +34,18 @@ void MemPool::init()
         return;
     }
     //blockSize的大小为可用内存+memBlock之和
-    size_t bufSize = this->blockNum * this->blockSize;
+    size_t bufSize = this->blockNum * (sizeof(MemBlock) + this->blockSize);
     this->addr = static_cast<unsigned char *>(malloc(bufSize));
     this->cur = reinterpret_cast<MemBlock *>(this->addr);
     this->cur->init(this);
     //串联为一个链表
     MemBlock *tmpBlock = this->cur;
-    for (int i = 0; i < this->blockNum; ++i)
+    addrLock.lock();
+    for (int i = 0; i < this->blockNum - 1; ++i)
     {
         //blockSize 为内存池每个格子的大小
-        auto *nextTmp = reinterpret_cast<MemBlock *>(tmpBlock + i * this->blockSize);
+        auto *nextTmp = reinterpret_cast<MemBlock *>((unsigned char *) tmpBlock +
+                                                     (this->blockSize + sizeof(MemBlock)));
         nextTmp->init(this);
         tmpBlock->setNext(nextTmp);
         tmpBlock = nextTmp;
@@ -49,6 +55,7 @@ void MemPool::init()
     {
         tmpBlock->setNext(nullptr);
     }
+    addrLock.unlock();
 }
 
 
@@ -68,10 +75,12 @@ void *MemPool::allocMem(size_t size)
     }
     else
     {
+        addrLock.lock();
         //返回头部
         mem = this->cur;
         //头部指向下一个位置
         this->cur = this->cur->getNext();
+        addrLock.unlock();
         mem->init(this);
         mem->addRef();//引用次数加1
     }
@@ -112,6 +121,21 @@ void MemPool::freeMem(void *mem)
 size_t MemPool::getBlockSize() const
 {
     return blockSize;
+}
+
+size_t MemPool::getBlockNum() const
+{
+    return blockNum;
+}
+
+void MemPool::setBlockNum(size_t blockNum)
+{
+    MemPool::blockNum = blockNum;
+}
+
+void MemPool::setBlockSize(size_t blockSize)
+{
+    MemPool::blockSize = blockSize;
 }
 
 

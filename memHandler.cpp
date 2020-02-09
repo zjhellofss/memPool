@@ -29,7 +29,7 @@ MemHandler *MemHandler::get()
     {
         MemHandler::memHandler = static_cast<MemHandler *>(malloc(sizeof(MemHandler)));
     }
-    memHandler->init(10);
+    memHandler->init(5000, 8, 4096);
     return memHandler;
 }
 
@@ -78,15 +78,18 @@ void MemHandler::freeMem(void *mem)
     }
 }
 
-void MemHandler::init(int num)
+void MemHandler::init(int num, int minSize, int maxSize)
 {
-    int minSize = 8;
-    int maxSize = 4096;
+    this->minSize = minSize;
+    this->maxSize = maxSize;
     std::vector<int> tmp;
 
     for (int i = minSize; i < maxSize; i *= 2)
     {
-        this->poolVec.push_back(new MemPool(num, i));
+        auto *pool = static_cast<MemPool *>(malloc(sizeof(MemPool)));
+        pool->setBlockNum(num);
+        pool->setBlockSize(i);
+        this->poolVec.push_back(pool);
     }
 }
 

@@ -3,16 +3,15 @@
 //
 
 #include <cassert>
+#include <mutex>
 #include "memBlock.h"
 #include "memPool.h"
+
+std::mutex m;
 
 MemBlock::MemBlock()
 {}
 
-MemBlock::~MemBlock()
-{
-
-}
 
 void MemBlock::init(MemPool *pool)
 {
@@ -36,7 +35,10 @@ void MemBlock::setNext(MemBlock *next)
 
 void MemBlock::addRef()
 {
+
+    m.lock();
     this->refTime += 1;
+    m.unlock();
 }
 
 int MemBlock::getId() const
@@ -46,8 +48,10 @@ int MemBlock::getId() const
 
 void MemBlock::recRef()
 {
+    m.lock();
     assert(this->refTime > 0);
     this->refTime--;
+    m.unlock();
 }
 
 void MemBlock::init(MemPool *memPool, int magicNumber)

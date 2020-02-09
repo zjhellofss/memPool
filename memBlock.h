@@ -13,7 +13,6 @@ class MemBlock
 public:
     MemBlock();
 
-    virtual ~MemBlock();
 
     void init(MemPool *pool);
 

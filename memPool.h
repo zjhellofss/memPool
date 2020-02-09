@@ -26,6 +26,12 @@ public:
 
     void freeMem(void *mem);
 
+    size_t getBlockNum() const;
+
+    void setBlockNum(size_t blockNum);
+
+    void setBlockSize(size_t blockSize);
+
     size_t getBlockSize() const;
 
 private:
@@ -33,6 +39,7 @@ private:
     size_t blockSize = 0;//内存单元的大小
     unsigned char *addr = nullptr;//内存池的指针
     MemBlock *cur = nullptr;
+
 
 };
 
